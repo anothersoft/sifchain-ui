@@ -15,6 +15,7 @@ import {
 } from "./usePoolPageData";
 import PoolItem from "./PoolItem";
 import { isAssetFlaggedDisabled } from "@/store/modules/flags";
+import { SearchBox } from "@/components/SearchBox";
 
 export default defineComponent({
   name: "PoolsPage",
@@ -22,6 +23,7 @@ export default defineComponent({
     return {
       sortBy: "rewardApy" as PoolPageColumnId,
       sortReverse: false,
+      searchQuery: "",
     };
   },
   setup() {
@@ -41,6 +43,14 @@ export default defineComponent({
           if (!asset) return;
 
           if (isAssetFlaggedDisabled(asset)) return false;
+
+          if (
+            this.searchQuery.length > 0 &&
+            !asset.symbol.toLowerCase().includes(this.searchQuery)
+          ) {
+            return false;
+          }
+
           return (
             !asset.decommissioned ||
             // Show decommissioned assets if user has a share.
@@ -114,41 +124,51 @@ export default defineComponent({
               </Button.Inline>
             }
             headerContent={
-              <div class="w-full pb-[5px] mb-[-5px] w-full flex flex-row justify-start">
-                {COLUMNS.map((column, index) => (
-                  <div
-                    key={column.name}
-                    onClick={() => {
-                      if (!column.sortable) return;
-                      if (this.sortBy === column.id) {
-                        this.sortReverse = !this.sortReverse;
-                      } else {
-                        this.sortReverse = false;
-                        this.sortBy = column.id;
-                      }
-                    }}
-                    class={[
-                      column.class,
-                      "opacity-50 flex items-center",
-                      column.sortable && "cursor-pointer",
-                    ]}
-                  >
-                    {column.name}
-                    {column.help && (
-                      <Button.InlineHelp>{column.help}</Button.InlineHelp>
-                    )}
-                    <AssetIcon
-                      icon="interactive/arrow-down"
+              <>
+                <SearchBox
+                  containerClass="mb-4"
+                  value={this.searchQuery}
+                  placeholder="Search Token..."
+                  onInput={(e: Event) => {
+                    this.searchQuery = (e.target as HTMLInputElement).value;
+                  }}
+                />
+                <div class="w-full pb-[5px] mb-[-5px] w-full flex flex-row justify-start">
+                  {COLUMNS.map((column, index) => (
+                    <div
+                      key={column.name}
+                      onClick={() => {
+                        if (!column.sortable) return;
+                        if (this.sortBy === column.id) {
+                          this.sortReverse = !this.sortReverse;
+                        } else {
+                          this.sortReverse = false;
+                          this.sortBy = column.id;
+                        }
+                      }}
                       class={[
-                        "pl-[2px] mr-[-22px]",
-                        (!column.sortable || this.sortBy !== column.id) &&
-                          "invisible",
-                        this.sortReverse && "rotate-180",
+                        column.class,
+                        "opacity-50 flex items-center",
+                        column.sortable && "cursor-pointer",
                       ]}
-                    />
-                  </div>
-                ))}
-              </div>
+                    >
+                      {column.name}
+                      {column.help && (
+                        <Button.InlineHelp>{column.help}</Button.InlineHelp>
+                      )}
+                      <AssetIcon
+                        icon="interactive/arrow-down"
+                        class={[
+                          "pl-[2px] mr-[-22px]",
+                          (!column.sortable || this.sortBy !== column.id) &&
+                            "invisible",
+                          this.sortReverse && "rotate-180",
+                        ]}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
             }
           >
             {this.sanitizedPoolData.map((item: PoolDataItem) => {

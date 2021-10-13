@@ -29,22 +29,16 @@ export const LeaderboardRow = defineComponent({
   },
   data: (_) => ({
     isHovering: false,
-    isActive: false,
   }),
   computed: {
     displayedText() {
       const name: string = this.item.name;
       const addr: string = this.item.address;
-      if (!this.isActive) {
-        return name;
+      if (this.isHovering) {
+        return addr;
       }
-      return addr;
+      return name;
     },
-  },
-  mounted() {
-    // setTimeout(() => {
-    //   this.isActive = true;
-    // }, 500 * this.item.rank);
   },
   render: function LeaderboardRow() {
     const props = this;
@@ -81,12 +75,9 @@ export const LeaderboardRow = defineComponent({
           <div
             onMouseenter={(e) => {
               this.isHovering = true;
-              if (this.isHovering) this.isActive = true;
-              setTimeout(() => {}, 100);
             }}
             onMouseleave={(e) => {
               this.isHovering = false;
-              this.isActive = false;
             }}
             class={[`cursor-pointer ml-[8px] translate-y-[-1px]`]}
           >

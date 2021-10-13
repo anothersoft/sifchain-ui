@@ -13,6 +13,8 @@ import {
   useUserPoolsSubscriber,
   usePublicPoolsSubscriber,
 } from "@/hooks/usePoolsSubscriber";
+import { createCryptoeconGqlClient } from "@/utils/createCryptoeconGqlClient";
+import { RewardProgram } from "../RewardsPage/useRewardsPageData";
 export type PoolPageAccountPool = { lp: LiquidityProvider; pool: Pool };
 
 export type PoolPageData = ReturnType<typeof usePoolPageData>;
@@ -93,6 +95,32 @@ export const usePoolPageData = () => {
     [accountStore.refs.sifchain.connected.computed()],
   );
 
+  const gql = createCryptoeconGqlClient();
+  const rewardProgramsRes = useAsyncData(
+    (): Promise<{
+      rewardPrograms: Pick<
+        RewardProgram,
+        | "isUniversal"
+        | "summaryAPY"
+        | "rewardProgramName"
+        | "displayName"
+        | "incentivizedPoolSymbols"
+      >[];
+    }> => {
+      return gql`
+        query {
+          rewardPrograms {
+            isUniversal
+            summaryAPY
+            rewardProgramName
+            displayName
+            incentivizedPoolSymbols
+          }
+        }
+      `;
+    },
+  );
+
   const allPoolsData = computed<PoolDataItem[]>(() => {
     const sifchainChain = useChains().get(Network.SIFCHAIN);
     return (statsRes.data?.value?.poolData?.pools || []).map((poolStat) => {
@@ -116,6 +144,7 @@ export const usePoolPageData = () => {
   });
 
   return {
+    rewardProgramsRes,
     isLoaded: computed(() => {
       return (
         !statsRes.isLoading.value &&
