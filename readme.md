@@ -10,6 +10,8 @@
 </p>
 <hr>
 
+Another.Software's fork of sifchain UI. Was forked for decentraliztion and more permissionless.
+
 ## ✨ Links
 
 ### 📖 [Documentation](https://github.com/Sifchain/sifchain-ui/tree/develop/core#getting-started)
